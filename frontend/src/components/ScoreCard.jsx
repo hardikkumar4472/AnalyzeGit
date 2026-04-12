@@ -48,8 +48,8 @@ const ScoreCard = ({ score, summary }) => {
           </motion.div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 mix-blend-difference pointer-events-none">
-            <span className="text-7xl font-black text-white drop-shadow-lg">{score}</span>
-            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white/90">RATIO</span>
+            <span className="text-7xl font-black text-white drop-shadow-lg leading-none">{score}</span>
+            <span className="text-xs font-black uppercase tracking-widest text-white/90 mt-1">/ 10</span>
           </div>
         </div>
       </div>

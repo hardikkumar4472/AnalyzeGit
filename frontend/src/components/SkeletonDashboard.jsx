@@ -32,8 +32,14 @@ const SkeletonDashboard = () => {
                     {/* ScoreCard Skeleton */}
                     <div className="bg-white dark:bg-slate-900/40 p-10 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col items-center">
                         <div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl mb-8 animate-pulse" />
-                        <div className="w-40 h-40 rounded-full border-[10px] border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8">
-                            <div className="w-20 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+                        {/* New Glass Skeleton */}
+                        <div className="relative w-36 h-52 border-4 border-slate-100 dark:border-slate-800 rounded-b-xl rounded-t-sm bg-slate-50 dark:bg-slate-900/40 mb-8 overflow-hidden">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <div className="w-16 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+                                <div className="w-8 h-3 bg-slate-200 dark:bg-slate-800 rounded mt-2 animate-pulse" />
+                            </div>
+                            {/* Subtle pulse for the liquid area */}
+                            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-slate-200/50 dark:bg-slate-800/30 animate-pulse" />
                         </div>
                         <div className="w-3/4 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg mb-4 animate-pulse" />
                         <div className="w-full space-y-2">
