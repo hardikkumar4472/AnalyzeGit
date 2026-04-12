@@ -274,6 +274,33 @@ const Dashboard = () => {
                                     <MetadataCard metadata={result.metadata} type={result.type} />
                                 </div>
                             </div>
+                            
+                            {!user && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5, duration: 0.8 }}
+                                    className="mt-8 p-8 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-yellow-500/5"
+                                >
+                                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                                        <div className="flex-1 text-center md:text-left">
+                                            <h3 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
+                                                Login to use more features
+                                            </h3>
+                                        </div>
+
+                                        <div className="flex items-center justify-center shrink-0">
+                                            <Link 
+                                                to="/auth" 
+                                                className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 text-black rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-glow active:scale-95 transition-all"
+                                                onClick={() => localStorage.setItem('auth_mode', 'login')}
+                                            >
+                                                {t('nav.login')}
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
