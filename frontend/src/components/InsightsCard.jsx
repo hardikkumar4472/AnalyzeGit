@@ -10,7 +10,7 @@ const InsightsCard = ({ goodPoints, badPoints }) => {
       <motion.div 
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
-        className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl p-8 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 transition-all duration-500 hover:shadow-glow"
+        className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 transition-all duration-500 hover:shadow-glow"
       >
         <div className="flex items-center gap-4 mb-6">
           <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl transition-colors">
@@ -37,7 +37,7 @@ const InsightsCard = ({ goodPoints, badPoints }) => {
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-premium border border-slate-100 dark:border-slate-800 transition-all duration-500 hover:shadow-glow"
+        className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 transition-all duration-500 hover:shadow-glow"
       >
         <div className="flex items-center gap-4 mb-6">
           <div className="p-2.5 bg-orange-50 dark:bg-orange-900/20 rounded-xl transition-colors">

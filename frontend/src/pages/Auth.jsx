@@ -120,13 +120,15 @@ const AuthContent = () => {
 
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-            <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#09090b] bg-dot-grid flex flex-col transition-colors duration-500">
+            <div className="min-h-screen relative flex flex-col transition-colors duration-500">
+                <div className="bg-mesh" />
+                <div className="bg-dot-grid absolute inset-0 z-0 opacity-40" />
                 <Header />
-                <div className="flex-1 flex items-center justify-center p-6">
+                <div className="flex-1 flex items-center justify-center p-6 pt-24 relative z-10">
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl p-10 border border-slate-100 dark:border-slate-800 transition-colors duration-500"
+                        className="w-full max-w-md bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-[2rem] shadow-premium p-10 border border-slate-200/50 dark:border-slate-800/50 transition-colors duration-500"
                     >
                     <AnimatePresence mode="wait">
                         {!showOtp ? (

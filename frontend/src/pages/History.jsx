@@ -295,7 +295,7 @@ const History = () => {
                                             exit={{ opacity: 0, scale: 0.98 }}
                                             transition={{ duration: 0.2 }}
                                             onClick={() => setSelectedRecord(record)}
-                                            className="group bg-white dark:bg-slate-900 md:bg-white/40 md:dark:bg-slate-900/40 md:backdrop-blur-xl p-5 md:p-6 rounded-none md:rounded-3xl border-b border-slate-100 dark:border-slate-800 md:border-none md:shadow-premium hover:md:shadow-glow transition-all cursor-pointer active:scale-[0.99]"
+                                            className="group bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-5 md:p-6 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-premium hover:shadow-glow transition-all cursor-pointer active:scale-[0.99]"
                                         >
                                             {/* ... card content ... (keeping existing internal structure) */}
                                             {/* card content starts here */}

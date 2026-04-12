@@ -9,7 +9,7 @@ const ScoreCard = ({ score, summary }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-premium border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center w-full transition-all duration-500 hover:shadow-glow"
+      className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 flex flex-col items-center text-center w-full transition-all duration-500 hover:shadow-glow"
     >
       <div className="w-12 h-12 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center mb-6">
         <Target className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />

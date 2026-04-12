@@ -9,7 +9,7 @@ const MetadataCard = ({ metadata, type }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-6 w-full transition-all duration-500 hover:shadow-glow font-['Outfit',sans-serif]"
+      className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl shadow-premium border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-6 w-full transition-all duration-500 hover:shadow-glow font-['Outfit',sans-serif]"
     >
       <div className="relative shrink-0">
         <img src={metadata.avatar} className="w-16 h-16 rounded-xl object-cover ring-4 ring-yellow-50 dark:ring-yellow-900/20" alt="" />
