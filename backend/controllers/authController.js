@@ -10,8 +10,6 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// @desc    Register user (Step 1: Send OTP)
-// @route   POST /api/auth/register
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
     try {
@@ -20,10 +18,9 @@ exports.register = async (req, res) => {
             if (userExists.isVerified) {
                 return res.status(400).json({ error: 'User already exists and is verified' });
             }
-            // User exists but not verified - overwrite or update OTP
             const otp = generateOTP();
             userExists.otp = otp;
-            userExists.otpExpires = Date.now() + 5 * 60 * 1000; // 5 mins
+            userExists.otpExpires = Date.now() + 5 * 60 * 1000; 
             userExists.name = name;
             userExists.password = password;
             await userExists.save();
@@ -52,9 +49,6 @@ exports.register = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-// @desc    Verify OTP (Step 2: Finalize Signup)
-// @route   POST /api/auth/verify-otp
 exports.verifyOTP = async (req, res) => {
     const { email, otp } = req.body;
     try {
@@ -81,8 +75,6 @@ exports.verifyOTP = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-// @desc    Resend OTP
 exports.resendOTP = async (req, res) => {
     const { email } = req.body;
     try {
@@ -100,9 +92,6 @@ exports.resendOTP = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-// @desc    Login user
-// @route   POST /api/auth/login
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -128,8 +117,6 @@ exports.login = async (req, res) => {
     }
 };
 
-// @desc    Google OAuth Success
-// @route   POST /api/auth/google
 exports.googleAuth = async (req, res) => {
     const { googleId, email, name, avatar } = req.body;
     console.log("DEBUG: Google Auth Attempt for:", email);

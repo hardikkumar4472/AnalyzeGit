@@ -3,8 +3,6 @@ const redisConnection = require('./config/redis');
 const { getGitHubData } = require('./services/githubService');
 const { analyzeWithAI } = require('./services/aiService');
 const Analysis = require('./models/Analysis');
-
-// Define the Queue
 const analysisQueue = new Queue('analysis-queue', { connection: redisConnection });
 
 const createWorker = (io) => {
@@ -15,16 +13,10 @@ const createWorker = (io) => {
 
         try {
             console.log(`Working on job ${job.id} for ${url}`);
-            
-            // Step 1: Fetch GitHub Data
             io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 20 });
             const githubData = await getGitHubData(url);
-            
-            // Step 2: Analyze with AI
             io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 50 });
             const analysis = await analyzeWithAI(githubData.data, githubData.type, lang);
-            
-            // Step 3: Format Result
             io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 80 });
             const result = {
                 type: githubData.type,
@@ -35,8 +27,6 @@ const createWorker = (io) => {
                 },
                 analysis: analysis
             };
-
-            // Step 4: Persistent storage
             await Analysis.create({
                 url,
                 type: result.type,
@@ -45,19 +35,17 @@ const createWorker = (io) => {
                 users: (userId && userId !== 'anonymous') ? [userId] : [],
                 lang: lang
             });
-
-            // Step 5: Notify success
             io.to(room).emit('analysis-complete', result);
             return result;
 
         } catch (error) {
             console.error(`Worker error for job ${job.id}:`, error.message);
             io.to(room).emit('analysis-error', { error: error.message });
-            throw error; // Re-throw to trigger BullMQ retry logic
+            throw error; 
         }
     }, { 
         connection: redisConnection,
-        concurrency: 5 // Process 5 jobs simultaneously per worker instance
+        concurrency: 5 
     });
 
     worker.on('completed', job => console.log(`Job ${job.id} completed`));

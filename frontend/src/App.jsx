@@ -2,8 +2,6 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import LoadingScreen from './components/LoadingScreen'
-
-// Lazy load pages for performance optimization
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Auth = lazy(() => import('./pages/Auth'))
 const History = lazy(() => import('./pages/History'))

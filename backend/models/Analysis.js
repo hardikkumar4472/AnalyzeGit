@@ -34,7 +34,6 @@ const AnalysisSchema = new mongoose.Schema({
     }
 });
 
-// High-Scaling Indexes
 AnalysisSchema.index({ url: 1 });
 AnalysisSchema.index({ users: 1 });
 

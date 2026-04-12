@@ -11,7 +11,7 @@ const store = configureStore({
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false, // Useful for complex API responses
+            serializableCheck: false, 
         }),
 });
 

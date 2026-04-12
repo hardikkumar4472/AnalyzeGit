@@ -137,14 +137,17 @@ const Dashboard = () => {
             <main className="relative z-10 w-full max-w-[1440px] mx-auto pt-24 pb-16">
                 {/* Hero Section */}
                 <div className={`flex flex-col items-center text-center transition-all duration-1000 ${result ? 'mb-8 scale-95 opacity-80' : 'mb-0'}`}>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="mb-6 p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-premium border border-slate-100 dark:border-slate-800"
-                    >
-                        <Logo />
-                    </motion.div>
-
+                    {user && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-10 flex flex-col items-center group"
+                        >
+                            <h2 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tight mb-2">
+                                {t('dashboard.hi')}, <span className="text-yellow-600 dark:text-yellow-500">{user.name.split(' ')[0]}</span>
+                            </h2>
+                        </motion.div>
+                    )}
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}

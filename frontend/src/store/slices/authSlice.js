@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
 
-// ASYNC THUNKS
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
     try {
         const { data } = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
@@ -65,19 +64,15 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Login
             .addCase(login.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(login.fulfilled, (state, action) => { state.loading = false; state.user = action.payload; })
             .addCase(login.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            // Signup
             .addCase(signup.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(signup.fulfilled, (state) => { state.loading = false; })
             .addCase(signup.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            // Verify OTP
             .addCase(verifyOTP.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(verifyOTP.fulfilled, (state, action) => { state.loading = false; state.user = action.payload; })
             .addCase(verifyOTP.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            // Google Login
             .addCase(googleLogin.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(googleLogin.fulfilled, (state, action) => { state.loading = false; state.user = action.payload; })
             .addCase(googleLogin.rejected, (state, action) => { state.loading = false; state.error = action.payload; });

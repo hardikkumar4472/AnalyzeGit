@@ -18,17 +18,13 @@ const AuthContent = () => {
     const [showOtp, setShowOtp] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [timer, setTimer] = useState(300); // 5 minutes
+    const [timer, setTimer] = useState(300); 
     const [success, setSuccess] = useState('');
-    
-    // Redux State
     const { user, loading, error } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
     const otpRefs = useRef([]);
-
-    // Timer Logic
     useEffect(() => {
         let interval;
         if (showOtp && timer > 0) {
@@ -111,14 +107,12 @@ const AuthContent = () => {
     const handleResend = async () => {
         dispatch(clearError());
         try {
-            // Re-using axios for resend since it's a small utility without complex state
             await axios.post(`${API_BASE_URL}/auth/resend-otp`, { email: formData.email });
             setTimer(300);
             setOtp(['', '', '', '', '', '']);
             setSuccess('New OTP sent to your email!');
             setTimeout(() => setSuccess(''), 3000);
         } catch (err) {
-            // Manual error handling for generic resend
             console.error('Resend Error:', err);
         }
     };

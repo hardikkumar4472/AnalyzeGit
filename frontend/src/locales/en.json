@@ -11,6 +11,8 @@
       "signup": "Sign Up"
     },
     "dashboard": {
+      "hi": "Hi",
+      "ready_audit": "Ready for next audit",
       "title": "Think, analyze, and",
       "subtitle": "audit in one place",
       "description": "",
