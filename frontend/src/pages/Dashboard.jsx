@@ -25,6 +25,7 @@ const API_URL = `${API_BASE_URL}/analyze`
 const Dashboard = () => {
     const [url, setUrl] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [socketId, setSocketId] = useState(null)
     
     const { user } = useSelector((state) => state.auth)
     const { result, loading, error, progress } = useSelector((state) => state.analysis)
@@ -69,6 +70,7 @@ const Dashboard = () => {
         });
 
         socketInstance.on('connect', () => {
+            setSocketId(socketInstance.id);
             if (user) {
                 socketInstance.emit('join-analysis', user._id);
             } else {

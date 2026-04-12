@@ -12,9 +12,13 @@ const initSocket = (server) => {
         
         socket.on('join-analysis', (userId) => {
             console.log(`Frontend requested join-analysis for userId: ${userId}`);
-            if (userId) {
+            if (userId && userId !== 'anonymous') {
                 socket.join(`user-${userId}`);
                 console.log(`Socket ${socket.id} joined room: user-${userId}`);
+            } else {
+                // For guests, join a room specific to this socket
+                socket.join(`socket-${socket.id}`);
+                console.log(`Guest Socket ${socket.id} joined private room: socket-${socket.id}`);
             }
         });
         socket.on('disconnect', () => {
