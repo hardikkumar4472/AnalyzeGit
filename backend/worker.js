@@ -1,0 +1,69 @@
+const { Worker, Queue } = require('bullmq');
+const redisConnection = require('./config/redis');
+const { getGitHubData } = require('./services/githubService');
+const { analyzeWithAI } = require('./services/aiService');
+const Analysis = require('./models/Analysis');
+
+// Define the Queue
+const analysisQueue = new Queue('analysis-queue', { connection: redisConnection });
+
+const createWorker = (io) => {
+    const worker = new Worker('analysis-queue', async (job) => {
+        const { url, userId, lang } = job.data;
+        const room = `user-${userId}`;
+        console.log(`Job ${job.id} target room: ${room}`);
+
+        try {
+            console.log(`Working on job ${job.id} for ${url}`);
+            
+            // Step 1: Fetch GitHub Data
+            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 20 });
+            const githubData = await getGitHubData(url);
+            
+            // Step 2: Analyze with AI
+            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 50 });
+            const analysis = await analyzeWithAI(githubData.data, githubData.type, lang);
+            
+            // Step 3: Format Result
+            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 80 });
+            const result = {
+                type: githubData.type,
+                metadata: {
+                    name: githubData.type === 'user' ? githubData.data.profile.name || githubData.data.profile.login : githubData.data.details.name,
+                    avatar: githubData.type === 'user' ? githubData.data.profile.avatar_url : githubData.data.details.owner.avatar_url,
+                    url: url
+                },
+                analysis: analysis
+            };
+
+            // Step 4: Persistent storage
+            await Analysis.create({
+                url,
+                type: result.type,
+                metadata: result.metadata,
+                analysis: result.analysis,
+                users: (userId && userId !== 'anonymous') ? [userId] : [],
+                lang: lang
+            });
+
+            // Step 5: Notify success
+            io.to(room).emit('analysis-complete', result);
+            return result;
+
+        } catch (error) {
+            console.error(`Worker error for job ${job.id}:`, error.message);
+            io.to(room).emit('analysis-error', { error: error.message });
+            throw error; // Re-throw to trigger BullMQ retry logic
+        }
+    }, { 
+        connection: redisConnection,
+        concurrency: 5 // Process 5 jobs simultaneously per worker instance
+    });
+
+    worker.on('completed', job => console.log(`Job ${job.id} completed`));
+    worker.on('failed', (job, err) => console.error(`Job ${job.id} failed:`, err.message));
+
+    return worker;
+};
+
+module.exports = { analysisQueue, createWorker };

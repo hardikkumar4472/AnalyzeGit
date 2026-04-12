@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Core Colors - Warm Clay & Silk Aesthetic */
+  --background: #fafaf9; /* Stone-50 */
+  --background-alt: #f5f5f4; /* Stone-100 */
+  --foreground: #1c1917; /* Stone-900 */
+  --primary: #d97706; /* Amber-600 */
+  --primary-glow: rgba(217, 119, 6, 0.1);
+  --secondary: #292524; /* Stone-800 */
+  
+  /* Cards & Borders */
+  --card: #ffffff;
+  --border: rgba(41, 37, 36, 0.05);
+  --muted: #78716c;
+  
+  /* Mesh Gradient Orbs - Warm Silk */
+  --orb-1: rgba(217, 119, 6, 0.05); /* Soft Amber */
+  --orb-2: rgba(120, 113, 108, 0.03); /* Soft Stone */
+  --dot-color: rgba(41, 37, 36, 0.03);
+}
+
+.dark {
+  --background: #000000;
+  --background-alt: #0c0a09;
+  --foreground: #fafaf9;
+  --primary: #f59e0b;
+  --primary-glow: rgba(245, 158, 11, 0.1);
+  --secondary: #ffffff;
+  
+  --card: #0c0a09;
+  --border: rgba(255, 255, 255, 0.06);
+  --muted: #a8a29e;
+  
+  /* Mesh Gradient Orbs - Dark Stone */
+  --orb-1: rgba(245, 158, 11, 0.06);
+  --orb-2: rgba(255, 255, 255, 0.02);
+  --dot-color: rgba(255, 255, 255, 0.02);
+}
+
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+/* Immersive Mesh Background */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at 0% 0%, var(--orb-1) 0, transparent 50%),
+    radial-gradient(circle at 100% 0%, var(--orb-2) 0, transparent 50%),
+    radial-gradient(circle at 50% 100%, var(--orb-1) 0, transparent 50%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+}
+
+/* Typography Enhancements */
+.text-gradient {
+  background: linear-gradient(135deg, var(--foreground) 30%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Spacing & Layout Utilities */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gap);
+  padding: var(--container-padding);
+}
+
+/* Premium Glassmorphism */
+.glass {
+  background: rgba(var(--card), 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border);
+}
+
+.glass-nav {
+  background: rgba(var(--background), 0.6);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Shadows */
+.shadow-premium {
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.05),
+    0 0 0 1px var(--border);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 30px var(--primary-glow);
+}
+
+@keyframes wave {
+  0% { transform: translate(-50%, 0) rotate(0deg); }
+  100% { transform: translate(-50%, 0) rotate(360deg); }
+}
+
+@keyframes bubbleUp {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 0.4; }
+  100% { transform: translateY(-120px); opacity: 0; }
+}
+
+.animate-liquid {
+  animation: wave 10s linear infinite;
+}
+
+.animate-bubble {
+  animation: bubbleUp 4s ease-in infinite;
+}
+
+/* Scroll Smoothing */
+html {
+  scroll-behavior: smooth;
+}

@@ -1,0 +1,77 @@
+{
+  "translation": {
+    "metadata": {
+      "user": "Developer Profile",
+      "repo": "Source Code Repo"
+    },
+    "nav": {
+      "history": "History",
+      "logout": "Logout",
+      "login": "Login",
+      "signup": "Sign Up"
+    },
+    "dashboard": {
+      "title": "Think, analyze, and",
+      "subtitle": "audit in one place",
+      "description": "",
+      "search_placeholder": "Enter GitHub repository or profile URL...",
+      "analyze": "Analyze",
+      "analyzing": "Analyzing...",
+      "error_generic": "Analysis failed. Please check the URL and try again.",
+      "score": "Score",
+      "overall_quality": "Overall Quality",
+      "audit_details": "Audit Analysis Details",
+      "quality_verified": "Quality Verified",
+      "quality_desc": "This audit was generated using Gemini 2.5 Flash and cross-referenced with modern GitHub architectural standards.",
+      "export_pdf": "Export PDF report"
+    },
+    "auth": {
+      "welcome_back": "Welcome Back",
+      "create_account": "Create Account",
+      "login_desc": "Welcome back! Please enter your details.",
+      "signup_desc": "Join us to start analyzing your repositories.",
+      "email_placeholder": "Email Address",
+      "password_placeholder": "Password",
+      "name_placeholder": "Full Name",
+      "login_btn": "Log In",
+      "signup_btn": "Sign Up",
+      "google_btn": "Continue with Google",
+      "no_account": "Don't have an account?",
+      "have_account": "Already have an account?",
+      "otp_title": "Verify Email",
+      "otp_desc": "We've sent a 6-digit code to",
+      "otp_expire": "Code expires in",
+      "verify_btn": "Verify & Create Account",
+      "resend": "Resend Code",
+      "back_btn": "Back"
+    },
+    "history": {
+      "title": "Your History",
+      "desc": "View and export all your past repository and profile audits.",
+      "loading": "Loading your records...",
+      "no_audits": "No Audits Found",
+      "no_audits_desc": "You haven't analyzed any repositories yet. Start your first audit today!",
+      "analyze_repo": "Analyze a Repo",
+      "download_pdf": "Download PDF",
+      "generated_at": "Generated At"
+    },
+    "insights": {
+      "strengths": "Strengths",
+      "improvements": "Improvements"
+    },
+    "modal": {
+      "limit_title": "Limit Reached",
+      "limit_desc": "You've used your 3 free searches. Join us for unlimited deep audits and a full history of your repository quality.",
+      "maybe_later": "Maybe later"
+    },
+    "community": {
+      "join_text": "Join 400+ developers"
+    },
+    "features": {
+      "speed": { "title": "Ultra-fast Analysis", "tag": "Under 10s" },
+      "security": { "title": "Privacy First", "tag": "No Code Stored" },
+      "insights": { "title": "AI Deep Audits", "tag": "Gemini 2.5" },
+      "global": { "title": "Public Repos", "tag": "Any GitHub Link" }
+    }
+  }
+}
