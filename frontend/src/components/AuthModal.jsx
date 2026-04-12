@@ -70,16 +70,6 @@ const AuthModal = ({ isOpen, onClose }) => {
                                 </button>
                             </div>
 
-                            <div className="mt-8 flex items-center gap-4 text-slate-400">
-                                <div className="flex -space-x-2">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden">
-                                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`} alt="" />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="text-xs font-bold uppercase tracking-widest">{t('community.join_text')}</p>
-                            </div>
                         </div>
                     </motion.div>
                 </div>

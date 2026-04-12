@@ -7,12 +7,13 @@ const analysisQueue = new Queue('analysis-queue', { connection: redisConnection 
 
 const createWorker = (io) => {
     const worker = new Worker('analysis-queue', async (job) => {
-        const { url, userId, lang } = job.data;
-        const room = `user-${userId}`;
+        const { url, userId, socketId, lang } = job.data;
+        const room = (userId === 'anonymous' && socketId) ? `socket-${socketId}` : `user-${userId}`;
         console.log(`Job ${job.id} target room: ${room}`);
 
         try {
             console.log(`Working on job ${job.id} for ${url}`);
+            io.to(room).emit('analysis-progress', { stage: 'Job Started...', progress: 15 });
             io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 20 });
             const githubData = await getGitHubData(url);
             io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 50 });

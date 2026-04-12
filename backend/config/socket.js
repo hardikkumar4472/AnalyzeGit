@@ -16,7 +16,6 @@ const initSocket = (server) => {
                 socket.join(`user-${userId}`);
                 console.log(`Socket ${socket.id} joined room: user-${userId}`);
             } else {
-                // For guests, join a room specific to this socket
                 socket.join(`socket-${socket.id}`);
                 console.log(`Guest Socket ${socket.id} joined private room: socket-${socket.id}`);
             }

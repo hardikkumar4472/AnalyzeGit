@@ -66,9 +66,6 @@
       "limit_desc": "You've used your 3 free searches. Join us for unlimited deep audits and a full history of your repository quality.",
       "maybe_later": "Maybe later"
     },
-    "community": {
-      "join_text": "Join 400+ developers"
-    },
     "features": {
       "speed": { "title": "Ultra-fast Analysis", "tag": "Under 10s" },
       "security": { "title": "Privacy First", "tag": "No Code Stored" },

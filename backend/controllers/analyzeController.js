@@ -2,7 +2,7 @@ const { analysisQueue } = require('../worker');
 const Analysis = require('../models/Analysis');
 
 const performAnalysis = async (req, res) => {
-    const { url, lang = 'en' } = req.body;
+    const { url, lang = 'en', socketId } = req.body;
     const userId = req.user ? req.user._id.toString() : 'anonymous';
     if (!url) {
         return res.status(400).json({ error: 'GitHub URL is required' });
@@ -13,6 +13,7 @@ const performAnalysis = async (req, res) => {
         const job = await analysisQueue.add('analyze', {
             url,
             userId: targetUserId,
+            socketId,
             lang
         }, {
             attempts: 3, 

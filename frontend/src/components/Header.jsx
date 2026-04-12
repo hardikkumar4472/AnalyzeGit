@@ -54,42 +54,37 @@ const Header = () => {
         </Link>
         
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Controls Capsule - Mobile only */}
-          <div className="flex sm:hidden items-center bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl p-1 gap-1 border border-slate-200/30 dark:border-slate-700/30">
-            <button 
-              onClick={() => dispatch(toggleTheme())}
-              className="p-2 text-slate-500 dark:text-slate-400"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <div className="w-px h-4 bg-slate-300 dark:bg-slate-700" />
-            {user ? (
-               <Link to="/history" className="p-2 text-slate-500 dark:text-slate-400">
-                  <Clock className="w-4 h-4" />
-               </Link>
-            ) : (
-                <Link to="/auth" className="p-2 text-yellow-600 font-black text-[10px] uppercase">Login</Link>
-            )}
-          </div>
+          {/* Universal Settings Bar */}
+          <div className="flex items-center bg-slate-100/50 dark:bg-slate-800/50 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none rounded-2xl p-1 sm:p-0 gap-1 sm:gap-3 border border-slate-200/30 dark:border-slate-700/30 sm:border-none">
+             {/* History icon - Available universally when logged in */}
+             {user && (
+                <Link 
+                  to="/history" 
+                  className="p-2 md:p-3 text-slate-500 dark:text-slate-400 hover:text-yellow-600 transition-colors active:scale-95"
+                  title="Audit History"
+                >
+                  <Clock className="w-4 h-4 md:w-5 md:h-5" />
+                </Link>
+             )}
 
-          {/* Desktop Controls */}
-          <div className="hidden sm:flex items-center gap-3">
+             {/* Theme Toggle */}
              <button 
                 onClick={() => dispatch(toggleTheme())}
-                className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-yellow-500 transition-all"
+                className="p-2 md:p-3 bg-white dark:bg-slate-800 sm:shadow-sm rounded-xl md:rounded-2xl border border-slate-200/50 dark:border-slate-700/50 sm:border-slate-100 sm:dark:border-slate-800 hover:border-yellow-500 transition-all active:scale-95"
               >
-                {isDarkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+                {isDarkMode ? <Sun className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" /> : <Moon className="w-3.5 h-3.5 md:w-4 md:h-4 text-slate-600" />}
               </button>
 
+              {/* Universal Language Switcher */}
               <div className="relative" ref={langRef}>
                 <button 
                   onClick={() => setIsLangOpen(!isLangOpen)}
-                  className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl hover:border-yellow-500 transition-all text-xs font-black uppercase tracking-widest"
+                  className="flex items-center gap-1.5 md:gap-3 px-2 md:px-4 py-2 md:py-3 bg-white dark:bg-slate-800 sm:shadow-sm border border-slate-200/50 dark:border-slate-700/50 sm:border-slate-100 sm:dark:border-slate-800 rounded-xl md:rounded-2xl hover:border-yellow-500 transition-all text-[10px] font-black uppercase tracking-widest active:scale-95"
                 >
-                  <Globe className="w-4 h-4 text-slate-400" />
-                  <span>{i18n.language}</span>
+                  <Globe className="w-3.5 h-3.5 md:w-4 md:h-4 text-slate-400" />
+                  <span className="hidden sm:inline-block">{i18n.language}</span>
                   <motion.div animate={{ rotate: isLangOpen ? 180 : 0 }}>
-                    <ChevronDown className="w-3 h-3 text-slate-400" />
+                    <ChevronDown className="w-3 h-3 text-slate-400 opacity-50" />
                   </motion.div>
                 </button>
                 <AnimatePresence>
@@ -98,7 +93,7 @@ const Header = () => {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-40 bg-white dark:bg-slate-900 rounded-2xl shadow-premium border border-slate-100 dark:border-slate-800 py-3 overflow-hidden"
+                      className="absolute right-0 mt-3 w-40 bg-white dark:bg-slate-900 rounded-2xl shadow-premium border border-slate-100 dark:border-slate-800 py-3 overflow-hidden z-[150]"
                     >
                       {[
                         { code: 'en', label: 'English' },
@@ -174,6 +169,7 @@ const Header = () => {
               </button>
             </div>
           )}
+
         </div>
       </div>
     </nav>

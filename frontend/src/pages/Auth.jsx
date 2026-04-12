@@ -11,6 +11,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 import { useTranslation } from 'react-i18next'
+import Header from '../components/Header';
 
 const AuthContent = () => {
     const { t } = useTranslation();
@@ -119,12 +120,14 @@ const AuthContent = () => {
 
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-            <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#09090b] bg-dot-grid flex items-center justify-center p-6 transition-colors duration-500">
-                <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl p-10 border border-slate-100 dark:border-slate-800 transition-colors duration-500"
-                >
+            <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#09090b] bg-dot-grid flex flex-col transition-colors duration-500">
+                <Header />
+                <div className="flex-1 flex items-center justify-center p-6">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl p-10 border border-slate-100 dark:border-slate-800 transition-colors duration-500"
+                    >
                     <AnimatePresence mode="wait">
                         {!showOtp ? (
                             <motion.div
@@ -156,7 +159,7 @@ const AuthContent = () => {
                                             <input 
                                                 type="text" 
                                                 placeholder={t('auth.name_placeholder')}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                                             />
@@ -168,7 +171,7 @@ const AuthContent = () => {
                                         <input 
                                             type="email" 
                                             placeholder={t('auth.email_placeholder')}
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
                                             value={formData.email}
                                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                                             required
@@ -180,7 +183,7 @@ const AuthContent = () => {
                                         <input 
                                             type="password" 
                                             placeholder="Password"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
                                             value={formData.password}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
                                             required
@@ -196,7 +199,7 @@ const AuthContent = () => {
 
                                     <button 
                                         disabled={loading}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                     >
                                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Sign Up')}
                                     </button>
@@ -245,7 +248,7 @@ const AuthContent = () => {
                                     <ArrowLeft className="w-4 h-4" /> {t('auth.back_btn')}
                                 </button>
  
-                                <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-[32px] mb-8 transition-colors">
+                                <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl mb-8 transition-colors">
                                     <ShieldCheck className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                                 </div>
  
@@ -302,7 +305,7 @@ const AuthContent = () => {
 
                                     <button
                                         disabled={loading || timer === 0}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                     >
                                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code'}
                                     </button>
@@ -320,6 +323,7 @@ const AuthContent = () => {
                         )}
                     </AnimatePresence>
                 </motion.div>
+                </div>
             </div>
         </GoogleOAuthProvider>
     );

@@ -36,10 +36,6 @@ const LoadingScreen = () => {
                         }}
                     />
                 </div>
-                
-                <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
-                    Optimizing Experience
-                </p>
             </motion.div>
         </div>
     );
