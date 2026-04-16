@@ -24,18 +24,30 @@ const createWorker = (io) => {
                 metadata: {
                     name: githubData.type === 'user' ? githubData.data.profile.name || githubData.data.profile.login : githubData.data.details.name,
                     avatar: githubData.type === 'user' ? githubData.data.profile.avatar_url : githubData.data.details.owner.avatar_url,
-                    url: url
+                    url: url,
+                    language: githubData.type === 'repo' ? githubData.data.details.language : 'GitHub Persona',
+                    lastUpdate: githubData.type === 'repo' ? githubData.data.details.updated_at : githubData.data.profile.updated_at
                 },
                 analysis: analysis
             };
-            await Analysis.create({
-                url,
-                type: result.type,
-                metadata: result.metadata,
-                analysis: result.analysis,
-                users: (userId && userId !== 'anonymous') ? [userId] : [],
-                lang: lang
-            });
+            const updateDoc = {
+                $set: {
+                    type: result.type,
+                    metadata: result.metadata,
+                    analysis: result.analysis,
+                    createdAt: Date.now()
+                }
+            };
+            
+            if (userId && userId !== 'anonymous') {
+                updateDoc.$addToSet = { users: userId };
+            }
+
+            await Analysis.findOneAndUpdate(
+                { url, lang },
+                updateDoc,
+                { upsert: true, new: true }
+            );
             io.to(room).emit('analysis-complete', result);
             return result;
 

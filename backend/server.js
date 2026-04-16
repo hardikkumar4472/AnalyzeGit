@@ -9,6 +9,9 @@ const { createWorker } = require('./worker');
 dotenv.config();
 connectDB();
 
+const startCronJobs = require('./services/cronService');
+startCronJobs();
+
 const app = express();
 const server = http.createServer(app);
 const io = initSocket(server);
@@ -23,9 +26,13 @@ app.set('io', io);
 
 const analyzeRoute = require('./routes/analyzeRoute');
 const authRoute = require('./routes/authRoute');
+const jobRoute = require('./routes/jobRoute');
+const candidateRoute = require('./routes/candidateRoute');
 
 app.use('/api', analyzeRoute);
 app.use('/api/auth', authRoute);
+app.use('/api/jobs', jobRoute);
+app.use('/api/candidates', candidateRoute);
 
 app.get('/', (req, res) => {
     res.json({ message: "AnalyzeGit Scaler API is running..." });

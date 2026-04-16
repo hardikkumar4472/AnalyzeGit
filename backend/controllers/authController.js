@@ -12,6 +12,7 @@ const generateOTP = () => {
 
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
+    console.log(`[USER STEP] Registration attempt for: ${email}`);
     try {
         const userExists = await User.findOne({ email });
         if (userExists) {
@@ -51,6 +52,7 @@ exports.register = async (req, res) => {
 };
 exports.verifyOTP = async (req, res) => {
     const { email, otp } = req.body;
+    console.log(`[USER STEP] OTP verification for: ${email}`);
     try {
         const user = await User.findOne({ email, otp, otpExpires: { $gt: Date.now() } });
         
@@ -94,6 +96,7 @@ exports.resendOTP = async (req, res) => {
 };
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(`[USER STEP] Login attempt for: ${email}`);
     try {
         const user = await User.findOne({ email });
         if (!user) return res.status(401).json({ error: 'Invalid email or password' });

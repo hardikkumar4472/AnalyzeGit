@@ -35,6 +35,6 @@ const AnalysisSchema = new mongoose.Schema({
 });
 
 AnalysisSchema.index({ url: 1 });
-AnalysisSchema.index({ users: 1 });
+AnalysisSchema.index({ users: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Analysis', AnalysisSchema);
