@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { logout, toggleTheme } from '../store'
-import Logo from './Logo'
+import { logout, toggleTheme } from '../../store'
+import Logo from '../atoms/Logo'
+import ConfirmationModal from '../molecules/ConfirmationModal'
 import { useTranslation } from 'react-i18next'
 import { User, LogOut, Clock, Globe, Sun, Moon, ChevronDown } from 'lucide-react'
 
@@ -16,6 +17,7 @@ const Header = () => {
   const { t, i18n } = useTranslation()
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const langRef = useRef(null)
   const profileRef = useRef(null)
@@ -150,7 +152,7 @@ const Header = () => {
                       </div>
                       <div className="p-2 border-t border-slate-100 dark:border-slate-800">
                         <button 
-                          onClick={() => { dispatch(logout()); navigate('/auth'); }}
+                          onClick={() => { setIsProfileOpen(false); setIsLogoutModalOpen(true); }}
                           className="w-full flex items-center gap-3 p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl transition-all text-xs font-black uppercase tracking-widest"
                         >
                           <LogOut className="w-4 h-4" />
@@ -162,7 +164,7 @@ const Header = () => {
                 </AnimatePresence>
               </div>
               <button 
-                onClick={() => { dispatch(logout()); navigate('/auth'); }}
+                onClick={() => setIsLogoutModalOpen(true)}
                 className="hidden sm:flex w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95"
               >
                 <LogOut className="w-4 h-4" />
@@ -172,6 +174,20 @@ const Header = () => {
 
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={() => {
+          dispatch(logout());
+          navigate('/auth');
+        }}
+        title="Sign Out"
+        message="Are you sure you want to securely sign out of your account?"
+        confirmText="Yes, Sign Out"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </nav>
   )
 }

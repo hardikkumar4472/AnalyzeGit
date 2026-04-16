@@ -4,14 +4,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { login, signup, verifyOTP, googleLogin, clearError } from '../store';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, AlertCircle, Loader2, ArrowLeft, ShieldCheck, RefreshCw } from 'lucide-react';
-import Logo from '../components/Logo';
+import Logo from '../components/atoms/Logo';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 import { useTranslation } from 'react-i18next'
-import Header from '../components/Header';
+import Header from '../components/organisms/Header';
 
 const AuthContent = () => {
     const { t } = useTranslation();
@@ -141,7 +141,7 @@ const AuthContent = () => {
                                 <div className="flex flex-col items-center mb-10">
                                     <button 
                                         onClick={() => navigate('/')}
-                                        className="self-start mb-6 text-slate-400 hover:text-blue-600 flex items-center gap-1 text-sm font-bold transition-colors"
+                                        className="self-start mb-6 text-slate-400 hover:text-amber-600 flex items-center gap-1 text-sm font-bold transition-colors"
                                     >
                                         <ArrowLeft className="w-4 h-4" /> {t('auth.back_btn')}
                                     </button>
@@ -161,7 +161,7 @@ const AuthContent = () => {
                                             <input 
                                                 type="text" 
                                                 placeholder={t('auth.name_placeholder')}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/20 transition-all font-medium"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                                             />
@@ -173,7 +173,7 @@ const AuthContent = () => {
                                         <input 
                                             type="email" 
                                             placeholder={t('auth.email_placeholder')}
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/20 transition-all font-medium"
                                             value={formData.email}
                                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                                             required
@@ -184,8 +184,8 @@ const AuthContent = () => {
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                         <input 
                                             type="password" 
-                                            placeholder="Password"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                                            placeholder={t('auth.password_placeholder')}
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/20 transition-all font-medium"
                                             value={formData.password}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
                                             required
@@ -201,9 +201,9 @@ const AuthContent = () => {
 
                                     <button 
                                         disabled={loading}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                        className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Sign Up')}
+                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? t('auth.login_btn') : t('auth.signup_btn'))}
                                     </button>
                                 </form>
 
@@ -226,12 +226,12 @@ const AuthContent = () => {
                                 </div>
 
                                 <p className="text-center mt-10 text-slate-500 text-sm">
-                                    {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                                    {isLogin ? t('auth.no_account') : t('auth.have_account')}{' '}
                                     <button 
                                         onClick={() => setIsLogin(!isLogin)}
-                                        className="text-blue-600 font-bold hover:underline"
+                                        className="text-amber-600 font-bold hover:underline"
                                     >
-                                        {isLogin ? 'Sign Up' : 'Sign In'}
+                                        {isLogin ? t('auth.signup_btn') : t('auth.login_btn')}
                                     </button>
                                 </p>
                             </motion.div>
@@ -250,13 +250,13 @@ const AuthContent = () => {
                                     <ArrowLeft className="w-4 h-4" /> {t('auth.back_btn')}
                                 </button>
  
-                                <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl mb-8 transition-colors">
-                                    <ShieldCheck className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                                <div className="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-2xl mb-8 transition-colors">
+                                    <ShieldCheck className="w-10 h-10 text-amber-600 dark:text-amber-400" />
                                 </div>
  
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Verify Email</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('auth.otp_title')}</h2>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 text-center px-6">
-                                    We've sent a 6-digit code to <br />
+                                    {t('auth.otp_desc')} <br />
                                     <b className="text-slate-700 dark:text-slate-200 font-bold">{formData.email}</b>
                                 </p>
 
@@ -274,7 +274,7 @@ const AuthContent = () => {
                                                         otpRefs.current[i - 1].focus();
                                                     }
                                                 }}
-                                                className="w-12 h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-center text-xl font-black text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-bold"
+                                                className="w-12 h-14 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-center text-xl font-black text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500/20 transition-all font-bold"
                                                 maxLength={1}
                                             />
                                         ))}
@@ -299,7 +299,7 @@ const AuthContent = () => {
                                     )}
 
                                     <div className="bg-slate-50 dark:bg-slate-800 py-3 px-4 rounded-xl flex items-center justify-between mb-8 transition-colors">
-                                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Expires in</span>
+                                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('auth.otp_expire')}</span>
                                         <span className={`text-sm font-black ${timer < 60 ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>
                                             {formatTime(timer)}
                                         </span>
@@ -307,18 +307,18 @@ const AuthContent = () => {
 
                                     <button
                                         disabled={loading || timer === 0}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                        className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-slate-200 text-white font-bold py-4 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code'}
+                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.verify_btn')}
                                     </button>
 
                                     <button 
                                         type="button"
                                         onClick={handleResend}
-                                        className="w-full mt-6 text-slate-400 hover:text-blue-600 flex items-center justify-center gap-2 text-sm font-bold transition-colors"
+                                        className="w-full mt-6 text-slate-400 hover:text-amber-600 flex items-center justify-center gap-2 text-sm font-bold transition-colors"
                                     >
                                         <RefreshCw className="w-4 h-4" />
-                                        Resend OTP
+                                        {t('auth.resend')}
                                     </button>
                                 </form>
                             </motion.div>

@@ -25,7 +25,11 @@
       "audit_details": "Audit Analysis Details",
       "quality_verified": "Quality Verified",
       "quality_desc": "This audit was generated using Gemini 2.5 Flash and cross-referenced with modern GitHub architectural standards.",
-      "export_pdf": "Export PDF report"
+      "export_pdf": "Export PDF report",
+      "hire_smarter_title": "Hire Smarter with AI",
+      "hire_smarter_desc": "Create Job Descriptions and analyze candidate resumes + Git personas.",
+      "recruiter_portal": "Recruiter Portal",
+      "new_job": "New Job"
     },
     "auth": {
       "welcome_back": "Welcome Back",
@@ -71,6 +75,49 @@
       "security": { "title": "Privacy First", "tag": "No Code Stored" },
       "insights": { "title": "AI Deep Audits", "tag": "Gemini 2.5" },
       "global": { "title": "Public Repos", "tag": "Any GitHub Link" }
+    },
+    "recruitment": {
+      "dashboard_title": "Recruiter Console",
+      "active_jobs": "Active Job Posts",
+      "create_job": "Create New Job",
+      "rankings": "Candidate Rankings",
+      "search_candidates": "Search candidates...",
+      "all_candidates": "All",
+      "top_matches": "Top Matches",
+      "no_candidates": "No candidates yet",
+      "no_candidates_desc": "Share the link to start receiving applications",
+      "share_link": "Share Application Link",
+      "copy_link": "Copy Link",
+      "link_copied": "Link copied to clipboard!",
+      "git_audit": "Candidate Git Audit"
+    },
+    "create_job": {
+      "title": "Launch New Role",
+      "subtitle": "Define the target profile for AI screening",
+      "job_title_label": "Job Title",
+      "job_title_placeholder": "e.g. Senior Frontend Engineer",
+      "description_label": "Job Description",
+      "description_placeholder": "Outline skills, requirements and expectations...",
+      "target_matches_label": "Target Matches",
+      "preview": "Preview",
+      "write": "Write",
+      "publish": "Publish Job",
+      "publishing": "Publishing..."
+    },
+    "candidate_apply": {
+      "hiring_badge": "We are Hiring",
+      "fetching": "Fetching Job Details...",
+      "processing": "Processing Application...",
+      "applied_title": "Application Submitted!",
+      "applied_desc": "Your details are submitted. We will get back to you soon.",
+      "full_name": "Full Name",
+      "email_address": "Email Address",
+      "github_url": "GitHub URL",
+      "upload_resume": "Upload your Resume",
+      "upload_desc": "Drop PDF or Image here (Max 5MB)",
+      "submit": "Submit Application",
+      "syncing": "Syncing with Supabase...",
+      "analyzing": "AI Analyzing Persona..."
     }
   }
 }

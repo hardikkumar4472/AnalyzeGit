@@ -18,7 +18,7 @@ const Features = () => {
             desc: t('features.ai_desc') || 'Advanced LLM cross-references your code with industrial standards and best practices.'
         },
         {
-            icon: <Search className="w-6 h-6 text-blue-500" />,
+            icon: <Search className="w-6 h-6 text-amber-500" />,
             title: t('features.search_title') || 'Deep Insights',
             desc: t('features.search_desc') || 'Go beyond stars and forks. Understand the actual architectural patterns of a repo.'
         },
@@ -38,7 +38,7 @@ const Features = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + i * 0.1 }}
                     whileHover={{ y: -5, scale: 1.02 }}
-                    className="p-6 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2rem] border border-slate-200/50 dark:border-slate-800/50 shadow-premium hover:shadow-glow transition-all"
+                    className="p-6 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-premium hover:shadow-glow transition-all"
                 >
                     <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                         {f.icon}

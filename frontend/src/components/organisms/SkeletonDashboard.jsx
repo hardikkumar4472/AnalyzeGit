@@ -8,7 +8,7 @@ const SkeletonDashboard = () => {
                 <div className="lg:col-span-12 xl:col-span-8 space-y-8">
                     {/* Insights Skeleton */}
                     {[1, 2].map((i) => (
-                        <div key={i} className="bg-white/30 dark:bg-slate-900/40 p-10 rounded-[2rem] border border-slate-200/50 dark:border-slate-800/50">
+                        <div key={i} className="bg-white/30 dark:bg-slate-900/40 p-10 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
                             <div className="flex items-center gap-4 mb-8">
                                 <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
                                 <div className="w-48 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
@@ -30,7 +30,7 @@ const SkeletonDashboard = () => {
 
                 <div className="lg:col-span-12 xl:col-span-4 space-y-8">
                     {/* ScoreCard Skeleton */}
-                    <div className="bg-white dark:bg-slate-900/40 p-10 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                    <div className="bg-white dark:bg-slate-900/40 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center">
                         <div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl mb-8 animate-pulse" />
                         {/* New Glass Skeleton */}
                         <div className="relative w-36 h-52 border-4 border-slate-100 dark:border-slate-800 rounded-b-xl rounded-t-sm bg-slate-50 dark:bg-slate-900/40 mb-8 overflow-hidden">
@@ -50,8 +50,8 @@ const SkeletonDashboard = () => {
                     </div>
 
                     {/* Metadata Skeleton */}
-                    <div className="bg-white/30 dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-6">
-                        <div className="w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-[1.25rem] animate-pulse" />
+                    <div className="bg-white/30 dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-6">
+                        <div className="w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
                         <div className="flex-1 space-y-3">
                             <div className="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
                             <div className="w-16 h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
