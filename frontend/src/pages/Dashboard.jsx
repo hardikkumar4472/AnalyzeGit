@@ -68,14 +68,24 @@ const Dashboard = () => {
     }, [result]);
 
     useEffect(() => {
-        const socketInstance = io(API_BASE_URL.replace('/api', ''));
+        const socketInstance = io(API_BASE_URL.replace('/api', ''), {
+            transports: ['websocket', 'polling'], // Prevent silent preflight drops
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+        });
 
         socketInstance.on('connect', () => {
-            if (user) {
+            console.log('Socket fully connected natively!');
+            if (user && user._id) {
                 socketInstance.emit('join-analysis', user._id);
             } else {
                 socketInstance.emit('join-analysis', persistentGuestId.current);
             }
+        });
+
+        socketInstance.on('disconnect', (reason) => {
+            console.warn('Socket disconnected unexpectedly:', reason);
         });
 
         socketInstance.on('analysis-progress', (data) => {
