@@ -11,10 +11,14 @@ const initSocket = (server) => {
         console.log('User Connected:', socket.id);
         
         socket.on('join-analysis', (userId) => {
-            console.log(`Frontend requested join-analysis for userId: ${userId}`);
             if (userId && userId !== 'anonymous') {
-                socket.join(`user-${userId}`);
-                console.log(`Socket ${socket.id} joined room: user-${userId}`);
+                if (userId.startsWith('guest_')) {
+                    socket.join(`socket-${userId}`);
+                    console.log(`Guest Socket ${socket.id} joined persistent link: socket-${userId}`);
+                } else {
+                    socket.join(`user-${userId}`);
+                    console.log(`Socket ${socket.id} joined room: user-${userId}`);
+                }
             } else {
                 socket.join(`socket-${socket.id}`);
                 console.log(`Guest Socket ${socket.id} joined private room: socket-${socket.id}`);

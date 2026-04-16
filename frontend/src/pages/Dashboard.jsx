@@ -29,7 +29,7 @@ const API_URL = `${API_BASE_URL}/analyze`
 const Dashboard = () => {
     const [url, setUrl] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [socketId, setSocketId] = useState(null)
+    const persistentGuestId = useRef(`guest_${Math.random().toString(36).substring(2, 10)}`)
     
     const { user } = useSelector((state) => state.auth)
     const { result, loading, error, progress } = useSelector((state) => state.analysis)
@@ -71,11 +71,10 @@ const Dashboard = () => {
         const socketInstance = io(API_BASE_URL.replace('/api', ''));
 
         socketInstance.on('connect', () => {
-            setSocketId(socketInstance.id);
             if (user) {
                 socketInstance.emit('join-analysis', user._id);
             } else {
-                socketInstance.emit('join-analysis', 'anonymous');
+                socketInstance.emit('join-analysis', persistentGuestId.current);
             }
         });
 
@@ -115,11 +114,11 @@ const Dashboard = () => {
             const { data } = await axios.post(API_URL, { 
                 url, 
                 lang: i18n.language,
-                socketId: !user ? socketId : null 
+                socketId: !user ? persistentGuestId.current : null 
             }, config)
             
-            if (data.cached) {
-                dispatch(setAnalysisResult(data))
+            if (data.status === 'cached') {
+                dispatch(setAnalysisResult(data.data))
             } else {
                 dispatch(setAnalysisProgress({ stage: 'Analysis in Progress...', percent: 10 }));
             }
