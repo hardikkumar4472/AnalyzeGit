@@ -3,7 +3,10 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const analyzeResume = async (fileBuffer, mimeType, jdContent) => {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+    });
 
     let resumeText = "";
     let parts = [];
@@ -61,10 +64,6 @@ Return ONLY as a JSON object:
     const response = await result.response;
     const text = response.text();
     
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
-    }
     return JSON.parse(text);
 };
 

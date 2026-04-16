@@ -2,7 +2,10 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const retry = require("async-retry");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const analyzeWithAI = async (data, type, lang = 'en') => {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+    });
     const targetLang = lang === 'hi' ? 'Hindi' : 'English';
     let prompt = "";
 
@@ -66,11 +69,6 @@ Return ONLY as a JSON object:
             const result = await model.generateContent(prompt);
             const response = await result.response;
             const text = response.text();
-            
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                return JSON.parse(jsonMatch[0]);
-            }
             
             return JSON.parse(text);
         } catch (error) {

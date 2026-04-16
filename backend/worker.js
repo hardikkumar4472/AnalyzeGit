@@ -52,8 +52,12 @@ const createWorker = (io) => {
             return result;
 
         } catch (error) {
-            console.error(`Worker error for job ${job.id}:`, error.message);
-            io.to(room).emit('analysis-error', { error: error.message });
+            console.error(`Worker error for job ${job.id} (Attempt ${job.attemptsMade}):`, error.message);
+            if (job.attemptsMade >= job.opts.attempts) {
+                io.to(room).emit('analysis-error', { error: error.message });
+            } else {
+                io.to(room).emit('analysis-progress', { stage: 'AI resolving timeout, retrying...', progress: 40 });
+            }
             throw error; 
         }
     }, { 
