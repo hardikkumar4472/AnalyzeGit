@@ -67,41 +67,52 @@ const Dashboard = () => {
         }
     }, [result]);
 
+    const socketRef = useRef(null);
+
     useEffect(() => {
         const socketInstance = io(API_BASE_URL.replace('/api', ''), {
-            transports: ['websocket', 'polling'], // Prevent silent preflight drops
+            transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
         });
 
+        socketRef.current = socketInstance;
+
         socketInstance.on('connect', () => {
-            console.log('Socket fully connected natively!');
+            console.log('[Frontend Socket] Connected with ID:', socketInstance.id);
             if (user && user._id) {
                 socketInstance.emit('join-analysis', user._id);
+                console.log('[Frontend Socket] Joined user room:', user._id);
             } else {
                 socketInstance.emit('join-analysis', persistentGuestId.current);
+                console.log('[Frontend Socket] Joined guest room:', persistentGuestId.current);
             }
         });
 
         socketInstance.on('disconnect', (reason) => {
-            console.warn('Socket disconnected unexpectedly:', reason);
+            console.warn('[Frontend Socket] Disconnected:', reason);
         });
 
         socketInstance.on('analysis-progress', (data) => {
+            console.log('[Frontend Socket] Progress received:', data);
             dispatch(setAnalysisProgress({ stage: data.stage, percent: data.progress }));
         });
 
         socketInstance.on('analysis-complete', (data) => {
+            console.log('[Frontend Socket] Complete result received:', data);
             dispatch(setAnalysisResult(data));
         });
 
         socketInstance.on('analysis-error', (data) => {
+            console.error('[Frontend Socket] Analysis error received:', data);
             dispatch(setAnalysisError(data.error));
         });
 
-        return () => socketInstance.disconnect();
-    }, [user, API_BASE_URL, dispatch]);
+        return () => {
+            socketInstance.disconnect();
+        };
+    }, [user, dispatch]);
 
     const handleAnalyze = async (e) => {
         e.preventDefault()
@@ -114,7 +125,7 @@ const Dashboard = () => {
                 return;
             }
         }
-
+``
         dispatch(setAnalysisLoading(true))
 
         try {
@@ -124,7 +135,7 @@ const Dashboard = () => {
             const { data } = await axios.post(API_URL, { 
                 url, 
                 lang: i18n.language,
-                socketId: !user ? persistentGuestId.current : null 
+                socketId: (user && user._id) ? user._id : persistentGuestId.current 
             }, config)
             
             if (data.status === 'cached') {
