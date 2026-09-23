@@ -78,3 +78,4 @@ services.forEach(({ name, dir, script, color }) => {
         process.exit(0);
     });
 });
+//testing
