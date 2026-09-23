@@ -34,6 +34,14 @@ const CandidateSchema = new mongoose.Schema({
 });
 
 CandidateSchema.index({ jobId: 1, appliedAt: -1 });
-CandidateSchema.index({ jobId: 1, 'analysis.score': -1 });
+const Candidate = mongoose.model('Candidate', CandidateSchema);
 
-module.exports = mongoose.model('Candidate', CandidateSchema);
+Candidate.collection.dropIndex('email_1')
+    .then(() => console.log('[BACKEND] Dropped legacy email_1 unique index successfully.'))
+    .catch((err) => {
+        if (err.code !== 27) {
+            console.log('[BACKEND] Note regarding email_1 index:', err.message);
+        }
+    });
+
+module.exports = Candidate;

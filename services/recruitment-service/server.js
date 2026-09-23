@@ -78,7 +78,17 @@ const candidateSchema = new mongoose.Schema({
     gitAnalysisId: { type: mongoose.Schema.Types.ObjectId, ref: 'Analysis' },
     status: { type: String, enum: ['applied', 'analyzed', 'rejected', 'shortlisted'], default: 'analyzed' }
 }, { timestamps: true });
+candidateSchema.index({ jobId: 1, email: 1 });
 const Candidate = mongoose.model('Candidate', candidateSchema);
+
+// Auto-drop stale legacy unique index on email if present in MongoDB collection
+Candidate.collection.dropIndex('email_1')
+    .then(() => console.log('[RECRUITMENT] Dropped legacy email_1 unique index successfully.'))
+    .catch((err) => {
+        if (err.code !== 27) {
+            console.log('[RECRUITMENT] Note regarding email_1 index:', err.message);
+        }
+    });
 
 const analysisSchema = new mongoose.Schema({
     url: { type: String, required: true },
@@ -380,13 +390,6 @@ app.post('/candidates/apply', upload.single('resume'), async (req, res) => {
         const jobDetails = await Job.findOne({ jobId });
         if (!jobDetails) return res.status(404).json({ error: 'Job not found' });
 
-        if (email) {
-            const existingCandidate = await Candidate.findOne({ jobId, email });
-            if (existingCandidate) {
-                return res.status(400).json({ error: 'A user with this email has already applied for this role.' });
-            }
-        }
-
         const { publicUrl } = await uploadResume(file.buffer, file.originalname, file.mimetype);
 
         const analysisResult = await analyzeResume(file.buffer, file.mimetype, {
@@ -394,6 +397,13 @@ app.post('/candidates/apply', upload.single('resume'), async (req, res) => {
             description: jobDetails.description,
             requirements: jobDetails.requirements
         });
+
+        const candidateEmail = (email || analysisResult.email || '').trim().toLowerCase();
+        const candidateName = (name || analysisResult.name || 'Candidate').trim();
+
+        if (!candidateEmail) {
+            return res.status(400).json({ error: 'Email could not be determined. Please provide your email address.' });
+        }
 
         let gitAnalysisId = null;
         if (analysisResult.githubUrl) {
@@ -413,16 +423,22 @@ app.post('/candidates/apply', upload.single('resume'), async (req, res) => {
             }
         }
 
-        const candidate = await Candidate.create({
-            jobId,
-            name: req.body.name || analysisResult.name,
-            email: req.body.email || analysisResult.email,
-            resumeUrl: publicUrl,
-            githubUrl: analysisResult.githubUrl,
-            analysis: analysisResult.analysis,
-            gitAnalysisId,
-            status: 'analyzed'
-        });
+        // Use findOneAndUpdate with upsert: true so if the candidate already applied,
+        // it cleanly updates their application with the latest resume & analysis without E11000 error
+        const candidate = await Candidate.findOneAndUpdate(
+            { jobId, email: candidateEmail },
+            {
+                jobId,
+                name: candidateName,
+                email: candidateEmail,
+                resumeUrl: publicUrl,
+                githubUrl: analysisResult.githubUrl,
+                analysis: analysisResult.analysis,
+                gitAnalysisId,
+                status: 'analyzed'
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
 
         await redis.del(`candidates:job:${jobId}`);
 
@@ -440,7 +456,12 @@ app.post('/candidates/apply', upload.single('resume'), async (req, res) => {
         });
     } catch (error) {
         console.error('Candidate Apply Error:', error);
-        res.status(500).json({ error: error.message });
+        if (error.code === 11000) {
+            return res.status(400).json({
+                error: 'An application with this email address has already been submitted.'
+            });
+        }
+        res.status(500).json({ error: error.message || 'Failed to submit application' });
     }
 });
 

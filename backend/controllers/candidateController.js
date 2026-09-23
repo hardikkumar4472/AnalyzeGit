@@ -52,16 +52,27 @@ const applyToJob = async (req, res) => {
             }
         }
 
-        const candidate = await Candidate.create({
-            jobId,
-            name: req.body.name || analysisResult.name,
-            email: req.body.email || analysisResult.email,
-            resumeUrl: publicUrl,
-            githubUrl: analysisResult.githubUrl,
-            analysis: analysisResult.analysis,
-            gitAnalysisId,
-            status: 'analyzed'
-        });
+        const candidateEmail = (email || analysisResult.email || '').trim().toLowerCase();
+        const candidateName = (name || analysisResult.name || 'Candidate').trim();
+
+        if (!candidateEmail) {
+            return res.status(400).json({ error: 'Email could not be determined. Please provide an email.' });
+        }
+
+        const candidate = await Candidate.findOneAndUpdate(
+            { jobId, email: candidateEmail },
+            {
+                jobId,
+                name: candidateName,
+                email: candidateEmail,
+                resumeUrl: publicUrl,
+                githubUrl: analysisResult.githubUrl,
+                analysis: analysisResult.analysis,
+                gitAnalysisId,
+                status: 'analyzed'
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
 
         res.status(201).json({
             success: true,
@@ -77,7 +88,12 @@ const applyToJob = async (req, res) => {
 
     } catch (error) {
         console.error('Candidate Controller Error:', error);
-        res.status(500).json({ error: error.message });
+        if (error.code === 11000) {
+            return res.status(400).json({
+                error: 'An application with this email address has already been submitted.'
+            });
+        }
+        res.status(500).json({ error: error.message || 'Failed to submit application' });
     }
 };
 
