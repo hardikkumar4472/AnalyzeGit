@@ -9,7 +9,6 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
-        ansiColor('xterm')
         timeout(time: 1, unit: 'HOURS')
     }
 
@@ -88,28 +87,37 @@ pipeline {
         // Stage 4: Docker Build & Tagging (Parallel Multi-Microservice)
         // -------------------------------------------------------------
         stage('Docker Build & Tag') {
-            steps {
-                echo '🐳 Building Docker Images for all Microservices & Frontend...'
-                parallel(
-                    "API Gateway": {
+            parallel {
+                stage('Build API Gateway') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/api-gateway:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/api-gateway:latest ./services/gateway"
-                    },
-                    "Auth Service": {
+                    }
+                }
+                stage('Build Auth Service') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/auth-service:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/auth-service:latest ./services/auth-service"
-                    },
-                    "Recruitment Service": {
+                    }
+                }
+                stage('Build Recruitment Service') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/recruitment-service:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/recruitment-service:latest ./services/recruitment-service"
-                    },
-                    "Analysis Service": {
+                    }
+                }
+                stage('Build Analysis Service') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/analysis-service:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/analysis-service:latest ./services/analysis-service"
-                    },
-                    "Worker Service": {
+                    }
+                }
+                stage('Build Worker Service') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/worker-service:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/worker-service:latest ./services/worker-service"
-                    },
-                    "Frontend Client": {
+                    }
+                }
+                stage('Build Frontend Client') {
+                    steps {
                         sh "docker build -t ${DOCKER_REGISTRY}/frontend:${IMAGE_TAG} -t ${DOCKER_REGISTRY}/frontend:latest ./frontend"
                     }
-                )
+                }
             }
         }
 
