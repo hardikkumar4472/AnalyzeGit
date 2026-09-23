@@ -35,25 +35,22 @@ pipeline {
             parallel {
                 stage('Shared & Services Tests') {
                     steps {
-                        echo '🧪 Installing shared dependencies & running tests...'
-                        sh '''
-                            cd shared && npm install && cd ..
-                            cd services/gateway && npm install && cd ../..
-                            cd services/auth-service && npm install && cd ../..
-                            cd services/recruitment-service && npm install && cd ../..
-                            cd services/analysis-service && npm install && cd ../..
-                            cd services/worker-service && npm install && cd ../..
-                        '''
+                        echo '🧪 Installing shared dependencies & validating microservices...'
+                        dir('shared') { sh 'npm install' }
+                        dir('services/gateway') { sh 'npm install' }
+                        dir('services/auth-service') { sh 'npm install' }
+                        dir('services/recruitment-service') { sh 'npm install' }
+                        dir('services/analysis-service') { sh 'npm install' }
+                        dir('services/worker-service') { sh 'npm install' }
                     }
                 }
                 stage('Frontend Build Validation') {
                     steps {
                         echo '🎨 Validating frontend build...'
-                        sh '''
-                            cd frontend
-                            npm install
-                            npm run build
-                        '''
+                        dir('frontend') {
+                            sh 'npm install'
+                            sh 'npm run build'
+                        }
                     }
                 }
             }
