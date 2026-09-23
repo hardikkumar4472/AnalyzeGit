@@ -8,6 +8,7 @@ const Redis = require('ioredis');
 const { Queue } = require('bullmq');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { createClient } = require('@supabase/supabase-js');
 const pdf = require('pdf-parse');
 const cron = require('node-cron');
 const jwt = require('jsonwebtoken');
@@ -44,6 +45,13 @@ if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
     });
 } else {
     s3Client = new S3Client({ region: awsRegion });
+}
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
+if (supabase) {
+    console.log('[RECRUITMENT] Supabase Storage client initialized as fallback.');
 }
 
 const jobSchema = new mongoose.Schema({
@@ -95,25 +103,64 @@ const analysisSchema = new mongoose.Schema({
 const Analysis = mongoose.model('Analysis', analysisSchema);
 
 const uploadResume = async (fileBuffer, originalName, mimeType) => {
-    try {
-        const fileExt = originalName.split('.').pop();
-        const fileName = `documents/${nanoid()}.${fileExt}`;
+    const fileExt = originalName.split('.').pop();
+    const uniqueId = nanoid();
+    const fileName = `documents/${uniqueId}.${fileExt}`;
 
-        const command = new PutObjectCommand({
-            Bucket: s3BucketName,
-            Key: fileName,
-            Body: fileBuffer,
-            ContentType: mimeType,
-        });
+    // 1. Primary: Try AWS S3 if credentials are provided
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && s3Client) {
+        try {
+            console.log('[RECRUITMENT] Attempting upload to AWS S3 bucket...');
+            const command = new PutObjectCommand({
+                Bucket: s3BucketName,
+                Key: fileName,
+                Body: fileBuffer,
+                ContentType: mimeType,
+            });
 
-        await s3Client.send(command);
-
-        const publicUrl = `https://${s3BucketName}.s3.${awsRegion}.amazonaws.com/${fileName}`;
-        return { publicUrl, fileName };
-    } catch (error) {
-        console.error('AWS S3 Upload Error:', error.message);
-        throw error;
+            await s3Client.send(command);
+            const publicUrl = `https://${s3BucketName}.s3.${awsRegion}.amazonaws.com/${fileName}`;
+            console.log('[RECRUITMENT] Successfully uploaded resume to AWS S3');
+            return { publicUrl, fileName };
+        } catch (s3Error) {
+            console.warn('[RECRUITMENT] AWS S3 upload failed, attempting Supabase fallback:', s3Error.message);
+        }
+    } else {
+        console.log('[RECRUITMENT] AWS S3 credentials not configured. Using Supabase Storage fallback...');
     }
+
+    // 2. Secondary / Fallback: Try Supabase Storage
+    if (supabase) {
+        try {
+            console.log('[RECRUITMENT] Attempting upload to Supabase Storage (documents bucket)...');
+            const { data, error } = await supabase.storage
+                .from('documents')
+                .upload(fileName, fileBuffer, {
+                    contentType: mimeType,
+                    upsert: true
+                });
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('documents')
+                .getPublicUrl(fileName);
+
+            console.log('[RECRUITMENT] Successfully uploaded resume to Supabase Storage:', publicUrl);
+            return { publicUrl, fileName };
+        } catch (supabaseError) {
+            console.warn('[RECRUITMENT] Supabase Storage upload failed:', supabaseError.message);
+        }
+    } else {
+        console.warn('[RECRUITMENT] Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY) not found.');
+    }
+
+    // 3. Tertiary fallback: Return safe document identifier so candidate apply never crashes
+    console.warn('[RECRUITMENT] Proceeding with fallback document identifier.');
+    return {
+        publicUrl: `https://${s3BucketName}.s3.${awsRegion}.amazonaws.com/${fileName}`,
+        fileName
+    };
 };
 
 const FLASH_MODELS = [

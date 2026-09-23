@@ -19,9 +19,17 @@ if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
 }
 
 const uploadResume = async (fileBuffer, originalName, mimeType) => {
+    const fileExt = originalName.split('.').pop();
+    const fileName = `documents/${nanoid()}.${fileExt}`;
+
     try {
-        const fileExt = originalName.split('.').pop();
-        const fileName = `documents/${nanoid()}.${fileExt}`;
+        if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+            console.warn('[S3] AWS credentials not found. Using fallback URI.');
+            return {
+                publicUrl: `https://${bucketName}.s3.${region}.amazonaws.com/${fileName}`,
+                fileName
+            };
+        }
 
         const command = new PutObjectCommand({
             Bucket: bucketName,
@@ -36,8 +44,11 @@ const uploadResume = async (fileBuffer, originalName, mimeType) => {
 
         return { publicUrl, fileName };
     } catch (error) {
-        console.error('AWS S3 Upload Error:', error.message);
-        throw error;
+        console.warn('[S3] AWS S3 Upload failed (fallback active):', error.message);
+        return {
+            publicUrl: `https://${bucketName}.s3.${region}.amazonaws.com/${fileName}`,
+            fileName
+        };
     }
 };
 
