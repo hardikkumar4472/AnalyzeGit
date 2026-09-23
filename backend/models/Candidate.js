@@ -10,7 +10,12 @@ const CandidateSchema = new mongoose.Schema({
     email: String,
     resumeUrl: {
         type: String,
-        required: true
+        required: false
+    },
+    resumeFile: {
+        data: Buffer,
+        contentType: String,
+        originalName: String
     },
     githubUrl: String,
     analysis: {

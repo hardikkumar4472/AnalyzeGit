@@ -4,6 +4,7 @@ import { Trophy, FileText, Globe, AlertTriangle } from 'lucide-react'
 import Card from '../atoms/Card'
 import Badge from '../atoms/Badge'
 import Button from '../atoms/Button'
+import { API_BASE_URL } from '../../config'
 
 const CandidateCard = ({ 
   candidate, 
@@ -11,6 +12,16 @@ const CandidateCard = ({
   onViewResume, 
   onViewGitAnalysis 
 }) => {
+  const getResumeUrl = () => {
+    if (candidate.resumeUrl && 
+        candidate.resumeUrl.startsWith('http') && 
+        !candidate.resumeUrl.includes('omovghdnuiynymeamiph.supabase.co') && 
+        !candidate.resumeUrl.includes('analyzegit-resumes.s3.us-east-1.amazonaws.com')) {
+      return candidate.resumeUrl;
+    }
+    return `${API_BASE_URL}/candidates/${candidate._id}/resume`;
+  };
+
   return (
     <Card 
       interactive 
@@ -58,7 +69,8 @@ const CandidateCard = ({
               variant="secondary"
               className="py-4"
               icon={FileText}
-              onClick={() => window.open(candidate.resumeUrl, '_blank')}
+              title="View Resume"
+              onClick={() => window.open(getResumeUrl(), '_blank')}
             />
             {candidate.githubUrl && (
               <Button 
