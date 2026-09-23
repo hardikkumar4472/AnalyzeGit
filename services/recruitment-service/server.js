@@ -116,12 +116,16 @@ const uploadResume = async (fileBuffer, originalName, mimeType) => {
     }
 };
 
-const analyzeResume = async (fileBuffer, mimeType, jdContent) => {
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
-    });
+const FLASH_MODELS = [
+    process.env.GEMINI_MODEL,
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-8b"
+].filter(Boolean);
 
+const analyzeResume = async (fileBuffer, mimeType, jdContent) => {
     let resumeText = "";
     let parts = [];
 
@@ -169,9 +173,27 @@ Return ONLY as a JSON object:
 }
 `;
     parts.push(prompt);
-    const result = await model.generateContent(parts);
-    const response = await result.response;
-    return JSON.parse(response.text());
+
+    let lastError = null;
+    for (const modelName of FLASH_MODELS) {
+        try {
+            console.log(`[RECRUITMENT AI] Attempting resume analysis using model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+            const result = await model.generateContent(parts);
+            const response = await result.response;
+            const parsed = JSON.parse(response.text());
+            console.log(`[RECRUITMENT AI] Successfully analyzed resume with ${modelName}`);
+            return parsed;
+        } catch (error) {
+            console.warn(`[RECRUITMENT AI] Model ${modelName} failed (${error.message}), falling back to next Flash model...`);
+            lastError = error;
+        }
+    }
+
+    throw lastError || new Error("All Gemini Flash models failed to analyze resume");
 };
 
 const protect = (req, res, next) => {

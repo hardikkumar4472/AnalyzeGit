@@ -1,11 +1,16 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const retry = require("async-retry");
+const FLASH_MODELS = [
+    process.env.GEMINI_MODEL,
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-8b"
+].filter(Boolean);
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const analyzeWithAI = async (data, type, lang = 'en') => {
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
-    });
     const targetLang = lang === 'hi' ? 'Hindi' : 'English';
     let prompt = "";
 
@@ -64,27 +69,22 @@ Return ONLY as a JSON object:
 }
         `;
     }
-    return await retry(async (bail) => {
+    let lastError = null;
+    for (const modelName of FLASH_MODELS) {
         try {
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
             const result = await model.generateContent(prompt);
             const response = await result.response;
-            const text = response.text();
-            
-            return JSON.parse(text);
+            return JSON.parse(response.text());
         } catch (error) {
-            if (error.status === 400) bail(error);
-            
-            console.error('AI Service Retryable Error:', error.message);
-            throw error; 
+            console.warn(`[AI Service] Model ${modelName} failed (${error.message}), trying next Flash model...`);
+            lastError = error;
         }
-    }, {
-        retries: 3,
-        factor: 2,
-        minTimeout: 1000,
-        onRetry: (error, attempt) => {
-            console.log(`Retrying AI Analysis (Attempt ${attempt}) due to: ${error.message}`);
-        }
-    });
+    }
+    throw lastError || new Error("All Gemini Flash models failed");
 };
 
 module.exports = { analyzeWithAI };

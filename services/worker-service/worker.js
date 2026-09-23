@@ -148,12 +148,18 @@ const getGitHubData = async (url) => {
     }
 };
 
+const FLASH_MODELS = [
+    process.env.GEMINI_MODEL,
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash-8b"
+].filter(Boolean);
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 const analyzeWithAI = async (data, type, lang = 'en') => {
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
-    });
     const targetLang = lang === 'hi' ? 'Hindi' : 'English';
     let prompt = "";
 
@@ -213,24 +219,26 @@ Return ONLY as a JSON object:
         `;
     }
 
-    return await retry(async (bail) => {
+    let lastError = null;
+    for (const modelName of FLASH_MODELS) {
         try {
+            console.log(`[WORKER AI] Attempting analysis using model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
             const result = await model.generateContent(prompt);
             const response = await result.response;
-            return JSON.parse(response.text());
+            const parsed = JSON.parse(response.text());
+            console.log(`[WORKER AI] Successfully completed analysis with ${modelName}`);
+            return parsed;
         } catch (error) {
-            if (error.status === 400) bail(error);
-            console.error('AI Service Retryable Error:', error.message);
-            throw error; 
+            console.warn(`[WORKER AI] Model ${modelName} failed (${error.message}), falling back to next Flash model...`);
+            lastError = error;
         }
-    }, {
-        retries: 3,
-        factor: 2,
-        minTimeout: 1000,
-        onRetry: (error, attempt) => {
-            console.log(`Retrying AI Analysis (Attempt ${attempt}) due to: ${error.message}`);
-        }
-    });
+    }
+
+    throw lastError || new Error("All Gemini Flash models failed to respond");
 };
 
 const emitAnalysisEvent = (room, event, data) => {
