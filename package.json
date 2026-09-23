@@ -4,7 +4,8 @@
   "description": "AnalyzeGit - Enterprise Microservices Architecture",
   "main": "services/gateway/server.js",
   "scripts": {
-    "build": "npm install && npm install --prefix shared && npm install --prefix services/gateway && npm install --prefix services/auth-service && npm install --prefix services/recruitment-service && npm install --prefix services/analysis-service && npm install --prefix services/worker-service",
+    "build": "npm install --prefix shared && npm install --prefix services/gateway && npm install --prefix services/auth-service && npm install --prefix services/recruitment-service && npm install --prefix services/analysis-service && npm install --prefix services/worker-service",
+    "postinstall": "npm run build",
     "start": "node start-services.js",
     "start:gateway": "cd services/gateway && npm start",
     "start:auth": "cd services/auth-service && npm start",
