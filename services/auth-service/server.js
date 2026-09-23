@@ -8,12 +8,14 @@ const Brevo = require('@getbrevo/brevo');
 const { register, metricsMiddleware } = require('./metrics');
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Auth Service: MongoDB Connected'))
-    .catch((err) => {
-        console.error('Auth Service DB Connection Error:', err);
-        process.exit(1);
-    });
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+if (mongoUri) {
+    mongoose.connect(mongoUri)
+        .then(() => console.log('Auth Service: MongoDB Connected'))
+        .catch((err) => console.error('Auth Service DB Connection Error:', err.message));
+} else {
+    console.error('Auth Service Error: Neither MONGO_URI nor MONGODB_URI is defined!');
+}
 
 const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();

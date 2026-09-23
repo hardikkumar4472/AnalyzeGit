@@ -8,12 +8,14 @@ const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Analysis Service: MongoDB Connected'))
-    .catch((err) => {
-        console.error('Analysis Service DB Connection Error:', err);
-        process.exit(1);
-    });
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+if (mongoUri) {
+    mongoose.connect(mongoUri)
+        .then(() => console.log('Analysis Service: MongoDB Connected'))
+        .catch((err) => console.error('Analysis Service DB Connection Error:', err.message));
+} else {
+    console.error('Analysis Service Error: Neither MONGO_URI nor MONGODB_URI is defined!');
+}
 
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });

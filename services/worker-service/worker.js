@@ -34,12 +34,14 @@ const WORKER_METRICS_PORT = process.env.PORT_WORKER_METRICS || 9102;
 metricsServer.listen(WORKER_METRICS_PORT, () => console.log(`Worker Service: Metrics listening on port ${WORKER_METRICS_PORT}`))
     .on('error', (err) => console.warn(`Worker Service Metrics Warning: ${err.message}`));
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Worker Service: MongoDB Connected'))
-    .catch((err) => {
-        console.error('Worker Service DB Connection Error:', err);
-        process.exit(1);
-    });
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+if (mongoUri) {
+    mongoose.connect(mongoUri)
+        .then(() => console.log('Worker Service: MongoDB Connected'))
+        .catch((err) => console.error('Worker Service DB Connection Error:', err.message));
+} else {
+    console.error('Worker Service Error: Neither MONGO_URI nor MONGODB_URI is defined!');
+}
 
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const redisConnection = new Redis(redisUrl, {

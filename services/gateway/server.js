@@ -94,9 +94,9 @@ io.on('connection', (socket) => {
 
 app.use(cors());
 
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
-const RECRUITMENT_SERVICE_URL = process.env.RECRUITMENT_SERVICE_URL || 'http://localhost:5003';
-const ANALYSIS_SERVICE_URL = process.env.ANALYSIS_SERVICE_URL || 'http://localhost:5004';
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://127.0.0.1:5001';
+const RECRUITMENT_SERVICE_URL = process.env.RECRUITMENT_SERVICE_URL || 'http://127.0.0.1:5003';
+const ANALYSIS_SERVICE_URL = process.env.ANALYSIS_SERVICE_URL || 'http://127.0.0.1:5004';
 
 app.use(createProxyMiddleware({
     target: AUTH_SERVICE_URL,
