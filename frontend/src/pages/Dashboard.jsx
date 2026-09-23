@@ -125,7 +125,7 @@ const Dashboard = () => {
                 return;
             }
         }
-``
+
         dispatch(setAnalysisLoading(true))
 
         try {

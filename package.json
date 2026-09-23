@@ -1,21 +1,31 @@
 {
-  "name": "thinkify-intern-assignment",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "analyzegit-microservices",
+  "version": "2.0.0",
+  "description": "AnalyzeGit - Enterprise Microservices Architecture",
+  "main": "services/gateway/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm install --prefix shared && npm install --prefix services/gateway && npm install --prefix services/auth-service && npm install --prefix services/recruitment-service && npm install --prefix services/analysis-service && npm install --prefix services/worker-service",
+    "start": "concurrently -k -p \"[{name}]\" -n \"AUTH,RECRUIT,ANALYSIS,WORKER,GATEWAY\" -c \"blue,magenta,yellow,cyan,green\" \"npm --prefix services/auth-service start\" \"npm --prefix services/recruitment-service start\" \"npm --prefix services/analysis-service start\" \"npm --prefix services/worker-service start\" \"npm --prefix services/gateway start\"",
+    "start:gateway": "cd services/gateway && npm start",
+    "start:auth": "cd services/auth-service && npm start",
+    "start:recruitment": "cd services/recruitment-service && npm start",
+    "start:analysis": "cd services/analysis-service && npm start",
+    "start:worker": "cd services/worker-service && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
   },
-  "keywords": [],
+  "dependencies": {
+    "concurrently": "^9.2.4"
+  },
+  "keywords": [
+    "microservices",
+    "analyzegit",
+    "docker",
+    "ai",
+    "github"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.1",
-    "express": "^5.2.1",
-    "mongoose": "^9.4.1",
-    "octokit": "^5.0.5"
-  }
+  "type": "commonjs"
 }

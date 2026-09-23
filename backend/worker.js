@@ -8,17 +8,39 @@ const analysisQueue = new Queue('analysis-queue', { connection: redisConnection 
 const createWorker = (io) => {
     const worker = new Worker('analysis-queue', async (job) => {
         const { url, userId, socketId, lang } = job.data;
-        const room = (userId === 'anonymous' && socketId) ? `socket-${socketId}` : `user-${userId}`;
-        console.log(`Job ${job.id} target room: ${room}`);
+        const targetRooms = new Set();
+        if (userId && userId !== 'anonymous') {
+            targetRooms.add(`user-${userId}`);
+        }
+        if (socketId) {
+            if (socketId.startsWith('socket-') || socketId.startsWith('user-')) {
+                targetRooms.add(socketId);
+            } else if (socketId.startsWith('guest_')) {
+                targetRooms.add(`socket-${socketId}`);
+            } else {
+                targetRooms.add(`user-${socketId}`);
+                targetRooms.add(`socket-${socketId}`);
+            }
+        }
+        if (targetRooms.size === 0) {
+            targetRooms.add('user-anonymous');
+        }
+
+        const emitToRooms = (event, payload) => {
+            for (const room of targetRooms) {
+                console.log(`[Worker] Emitting ${event} to room: ${room}`);
+                io.to(room).emit(event, payload);
+            }
+        };
 
         try {
             console.log(`Working on job ${job.id} for ${url}`);
-            io.to(room).emit('analysis-progress', { stage: 'Job Started...', progress: 15 });
-            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 20 });
+            emitToRooms('analysis-progress', { stage: 'Job Started...', progress: 15 });
+            emitToRooms('analysis-progress', { stage: 'Analysis in Progress...', progress: 20 });
             const githubData = await getGitHubData(url);
-            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 50 });
+            emitToRooms('analysis-progress', { stage: 'Analysis in Progress...', progress: 50 });
             const analysis = await analyzeWithAI(githubData.data, githubData.type, lang);
-            io.to(room).emit('analysis-progress', { stage: 'Analysis in Progress...', progress: 80 });
+            emitToRooms('analysis-progress', { stage: 'Analysis in Progress...', progress: 80 });
             const result = {
                 type: githubData.type,
                 metadata: {
@@ -46,17 +68,17 @@ const createWorker = (io) => {
             await Analysis.findOneAndUpdate(
                 { url, lang },
                 updateDoc,
-                { upsert: true, new: true }
+                { upsert: true, returnDocument: 'after' }
             );
-            io.to(room).emit('analysis-complete', result);
+            emitToRooms('analysis-complete', result);
             return result;
 
         } catch (error) {
             console.error(`Worker error for job ${job.id} (Attempt ${job.attemptsMade}):`, error.message);
             if (job.attemptsMade >= job.opts.attempts) {
-                io.to(room).emit('analysis-error', { error: error.message });
+                emitToRooms('analysis-error', { error: error.message });
             } else {
-                io.to(room).emit('analysis-progress', { stage: 'AI resolving timeout, retrying...', progress: 40 });
+                emitToRooms('analysis-progress', { stage: 'AI resolving timeout, retrying...', progress: 40 });
             }
             throw error; 
         }

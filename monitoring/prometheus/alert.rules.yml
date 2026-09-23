@@ -1,0 +1,42 @@
+groups:
+  - name: analyzegit_alerts
+    rules:
+      # Alert when service instance goes down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down!"
+          description: "Instance {{ $labels.instance }} has been unreachable for > 30 seconds."
+
+      # High HTTP 5xx Error Rate
+      - alert: HighHttpErrorRate
+        expr: rate(analyzegit_http_requests_total{status_code=~"5.."}[1m]) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx Error Rate on {{ $labels.service }}"
+          description: "HTTP 5xx error rate is elevated on {{ $labels.service }}."
+
+      # High Latency Alert (> 1.5 seconds)
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(analyzegit_http_request_duration_seconds_bucket[5m])) by (le, service)) > 1.5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 95th Percentile Latency on {{ $labels.service }}"
+          description: "95% of requests take more than 1.5 seconds on {{ $labels.service }}."
+
+      # High CPU Utilization
+      - alert: HighCpuUsage
+        expr: rate(analyzegit_process_cpu_user_seconds_total[1m]) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.job }}"
+          description: "Process CPU usage is over 80% for 2 minutes."

@@ -1,7 +1,7 @@
 const Candidate = require('../models/Candidate');
 const Job = require('../models/Job');
 const Analysis = require('../models/Analysis');
-const { uploadResume } = require('../services/supabaseService');
+const { uploadResume } = require('../services/s3Service');
 const { analyzeResume } = require('../services/resumeService');
 const { analysisQueue } = require('../worker');
 const redis = require('../config/redis');

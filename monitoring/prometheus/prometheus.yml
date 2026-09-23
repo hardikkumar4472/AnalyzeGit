@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+# Alerting rules configuration
+rule_files:
+  - "/etc/prometheus/alert.rules.yml"
+
+scrape_configs:
+  # 1. Prometheus self monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2. Node Exporter (Host System Metrics - CPU, RAM, Disk)
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  # 3. API Gateway Service
+  - job_name: "api-gateway"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["api-gateway:5000"]
+
+  # 4. Auth Service
+  - job_name: "auth-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["auth-service:5001"]
+
+  # 5. Recruitment Service
+  - job_name: "recruitment-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["recruitment-service:5003"]
+
+  # 6. Analysis Service
+  - job_name: "analysis-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["analysis-service:5004"]
+
+  # 7. Background Worker Service
+  - job_name: "worker-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["worker-service:9102"]

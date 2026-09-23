@@ -1,0 +1,386 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: analyzegit
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    rule_files:
+      - "/etc/prometheus/alert.rules.yml"
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'api-gateway'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['api-gateway:5000']
+      - job_name: 'auth-service'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['auth-service:5001']
+      - job_name: 'recruitment-service'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['recruitment-service:5003']
+      - job_name: 'analysis-service'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['analysis-service:5004']
+      - job_name: 'worker-service'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['worker-service:9102']
+  alert.rules.yml: |
+    groups:
+      - name: analyzegit_alerts
+        rules:
+          - alert: ServiceDown
+            expr: up == 0
+            for: 30s
+            labels:
+              severity: critical
+            annotations:
+              summary: "Service {{ $labels.job }} is down!"
+              description: "Instance {{ $labels.instance }} has been unreachable for > 30 seconds."
+          - alert: HighHttpErrorRate
+            expr: rate(analyzegit_http_requests_total{status_code=~"5.."}[1m]) > 0.05
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High HTTP 5xx Error Rate on {{ $labels.service }}"
+              description: "HTTP 5xx error rate is elevated on {{ $labels.service }}."
+          - alert: HighLatency
+            expr: histogram_quantile(0.95, sum(rate(analyzegit_http_request_duration_seconds_bucket[5m])) by (le, service)) > 1.5
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High 95th Percentile Latency on {{ $labels.service }}"
+              description: "95% of requests take more than 1.5 seconds on {{ $labels.service }}."
+          - alert: HighCpuUsage
+            expr: rate(analyzegit_process_cpu_user_seconds_total[1m]) * 100 > 80
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage on {{ $labels.job }}"
+              description: "Process CPU usage is over 80% for 2 minutes."
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: analyzegit
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: analyzegit
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.49.1
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus
+            - name: prometheus-storage
+              mountPath: /prometheus
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config
+        - name: prometheus-storage
+          persistentVolumeClaim:
+            claimName: prometheus-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: analyzegit
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: analyzegit
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provider
+  namespace: analyzegit
+data:
+  dashboard.yml: |
+    apiVersion: 1
+    providers:
+      - name: 'AnalyzeGit Dashboards'
+        orgId: 1
+        folder: 'AnalyzeGit'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-analyzegit
+  namespace: analyzegit
+data:
+  analyzegit-dashboard.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+          "id": 1,
+          "title": "System & Service Health Overview",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [
+                { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "HEALTHY" } }, "type": "value" }
+              ],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 4, "w": 24, "x": 0, "y": 1 },
+          "id": 2,
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "horizontal" },
+          "title": "Microservices Up/Down Status",
+          "type": "stat",
+          "targets": [{ "expr": "up", "legendFormat": "{{ job }}", "refId": "A" }]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+          "id": 3,
+          "title": "Traffic, Requests & Error Rates",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line", "lineInterpolation": "smooth" }, "unit": "reqps" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "id": 4,
+          "title": "HTTP Request Throughput (req/sec)",
+          "type": "timeseries",
+          "targets": [{ "expr": "sum(rate(analyzegit_http_requests_total[1m])) by (service)", "legendFormat": "{{ service }}", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line", "lineInterpolation": "smooth" }, "unit": "reqps" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "id": 5,
+          "title": "HTTP Error Rate (4xx & 5xx Responses)",
+          "type": "timeseries",
+          "targets": [{ "expr": "sum(rate(analyzegit_http_requests_total{status_code=~\"4..|5..\"}[1m])) by (service, status_code)", "legendFormat": "{{ service }} - {{ status_code }}", "refId": "A" }]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+          "id": 6,
+          "title": "Latency & Response Times",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line", "lineInterpolation": "smooth" }, "unit": "s" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+          "id": 7,
+          "title": "95th Percentile Response Time (Latency p95)",
+          "type": "timeseries",
+          "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(analyzegit_http_request_duration_seconds_bucket[1m])) by (le, service))", "legendFormat": "p95 {{ service }}", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line", "lineInterpolation": "smooth" }, "unit": "s" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+          "id": 8,
+          "title": "Median Response Time (Latency p50)",
+          "type": "timeseries",
+          "targets": [{ "expr": "histogram_quantile(0.50, sum(rate(analyzegit_http_request_duration_seconds_bucket[1m])) by (le, service))", "legendFormat": "p50 {{ service }}", "refId": "A" }]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+          "id": 9,
+          "title": "Host & Microservice Resources (CPU & Memory)",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line" }, "unit": "percent" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+          "id": 10,
+          "title": "Microservice Process CPU Utilization",
+          "type": "timeseries",
+          "targets": [{ "expr": "rate(analyzegit_process_cpu_user_seconds_total[1m]) * 100", "legendFormat": "{{ job }} CPU %", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "fieldConfig": {
+            "defaults": { "custom": { "drawStyle": "line" }, "unit": "bytes" }
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+          "id": 11,
+          "title": "Memory Consumption (Heap Used)",
+          "type": "timeseries",
+          "targets": [{ "expr": "analyzegit_nodejs_heap_size_used_bytes", "legendFormat": "{{ job }} Heap", "refId": "A" }]
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["analyzegit", "production", "microservices"],
+      "time": { "from": "now-15m", "to": "now" },
+      "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+      "timezone": "browser",
+      "title": "AnalyzeGit - Enterprise Observability Dashboard",
+      "version": 1
+    }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: analyzegit
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: analyzegit
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.3.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"
+            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+              value: "/var/lib/grafana/dashboards/analyzegit-dashboard.json"
+          volumeMounts:
+            - name: grafana-datasources-volume
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-dashboards-provider-volume
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-dashboards-volume
+              mountPath: /var/lib/grafana/dashboards
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+      volumes:
+        - name: grafana-datasources-volume
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboards-provider-volume
+          configMap:
+            name: grafana-dashboards-provider
+        - name: grafana-dashboards-volume
+          configMap:
+            name: grafana-dashboard-analyzegit
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: analyzegit
+spec:
+  type: LoadBalancer
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000

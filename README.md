@@ -33,20 +33,77 @@ Whether you are a developer looking to audit your code or a recruiter building a
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Microservices Architecture
 
-The project follows a distributed, event-driven architecture designed for scalability and real-time user feedback.
+The system has been transformed into a fully decoupled, distributed **Microservices Architecture** with an **API Gateway & WebSocket Hub**, independent domain microservices, and Docker container orchestration.
 
 ```mermaid
 graph TD
     User((User/Candidate)) -->|React SPA| Frontend[Frontend - Vite/React]
-    Frontend -->|REST / Socket.io| Backend[Backend - Express.js]
-    Backend -->|Push Job| Queue[BullMQ / Redis]
-    Queue -->|Process| Worker[Background Worker]
+    Frontend -->|REST / Socket.io| Gateway[API Gateway - Port 5000]
+    
+    Gateway -->|/api/auth| AuthService[Auth Service - Port 5001]
+    Gateway -->|/api/jobs & /api/candidates| RecruitService[Recruitment Service - Port 5003]
+    Gateway -->|/api/analyze & /api/history| AnalysisService[Analysis Service - Port 5004]
+    
+    AnalysisService -->|Push Job| Queue[BullMQ / Redis]
+    RecruitService -->|Push Job| Queue
+    
+    Queue -->|Process Job| Worker[Worker Service - Background AI/Git]
     Worker -->|Fetch Data| GitHub[(GitHub API)]
-    Worker -->|Analyze| Gemini[Gemini AI Engine]
-    Worker -->|Store| DB[(MongoDB)]
-    Worker -->|Stream Progress| Frontend
+    Worker -->|Analyze| Gemini[Gemini 2.5 Flash]
+    Worker -->|Store Result| DB[(MongoDB)]
+    Worker -->|Publish Progress Event| RedisPub[Redis Pub/Sub]
+    
+    RedisPub -->|Broadcast Events| Gateway
+    Gateway -->|Real-time Socket.io Stream| Frontend
+```
+
+### 📦 Services Breakdown
+| Service | Directory | Port | Description |
+|---|---|---|---|
+| **API Gateway** | `services/gateway` | `5000` | Single entry point, reverse proxy, and Socket.io real-time event hub. |
+| **Auth Service** | `services/auth-service` | `5001` | JWT authentication, OTP emails (Brevo), and Google OAuth. |
+| **Recruitment Service** | `services/recruitment-service` | `5003` | Job lifecycle management, AWS S3 resume uploads, and AI fit scoring. |
+| **Analysis Service** | `services/analysis-service` | `5004` | Repository audit requests, caching layer, and historical query lookups. |
+| **Worker Service** | `services/worker-service` | Background | BullMQ queue worker for GitHub data extraction & Gemini heuristic audits. |
+
+---
+
+## 🐳 Quick Start with Docker Compose
+
+Run the entire microservices stack (MongoDB, Redis, all 5 backend microservices, and API Gateway) with a single command:
+
+```bash
+# 1. Start all microservices in containers
+docker-compose up --build
+
+# 2. To stop all services
+docker-compose down
+```
+
+---
+
+## 💻 Running Services Individually (Local Development)
+
+```bash
+# Terminal 1: API Gateway (Port 5000)
+npm run start:gateway
+
+# Terminal 2: Auth Service (Port 5001)
+npm run start:auth
+
+# Terminal 3: Recruitment Service (Port 5003)
+npm run start:recruitment
+
+# Terminal 4: Analysis Service (Port 5004)
+npm run start:analysis
+
+# Terminal 5: Worker Service (Background Worker)
+npm run start:worker
+
+# Terminal 6: Frontend Client (Port 5173)
+npm run start:frontend
 ```
 
 ---
@@ -75,7 +132,7 @@ When a candidate applies, the system performs a multi-stage persona audit.
 ```mermaid
 graph LR
     C[Candidate] -->|Resume + GitHub URL| B[API]
-    B -->|Sync| Supa[(Supabase Storage)]
+    B -->|Upload| S3[(AWS S3 Storage)]
     B -->|Job| Q[BullMQ]
     Q --> W[Worker]
     W -->|Fetch GitHub| GH[GitHub API]
